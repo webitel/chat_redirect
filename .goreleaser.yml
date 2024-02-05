@@ -1,0 +1,147 @@
+project_name: webitel-chat-redirect
+
+env:
+  - GO111MODULE=on
+
+before:
+  hooks:
+    - go mod tidy
+
+snapshot:
+  name_template: 'SNAPSHOT-{{ .Commit }}'
+
+report_sizes: true
+
+builds:
+  - env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+    goarch:
+      - amd64
+    mod_timestamp: '{{ .CommitTimestamp }}'
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w
+      - -X github.com/webitel/chat_redirect/cmd.version={{ .Version }}
+      - -X github.com/webitel/chat_redirect/cmd.commit={{ .Commit }}
+      - -X github.com/webitel/chat_redirect/cmd.commitDate={{ .CommitDate }}
+
+universal_binaries:
+  - replace: false
+
+checksum:
+  name_template: '{{ .ProjectName }}-{{ .Version }}-checksums.txt'
+
+changelog:
+  sort: asc
+  use: github
+  filters:
+    exclude:
+      - '^test:'
+      - '^chore'
+      - 'merge conflict'
+      - Merge pull request
+      - Merge remote-tracking branch
+      - Merge branch
+      - go mod tidy
+  groups:
+    - title: Dependency updates
+      regexp: '^.*?(feat|fix)\(deps\)!?:.+$'
+      order: 300
+    - title: 'New Features'
+      regexp: '^.*?feat(\([[:word:]]+\))??!?:.+$'
+      order: 100
+    - title: 'Security updates'
+      regexp: '^.*?sec(\([[:word:]]+\))??!?:.+$'
+      order: 150
+    - title: 'Bug fixes'
+      regexp: '^.*?fix(\([[:word:]]+\))??!?:.+$'
+      order: 200
+    - title: 'Documentation updates'
+      regexp: ^.*?doc(\([[:word:]]+\))??!?:.+$
+      order: 400
+    - title: 'Build process updates'
+      regexp: ^.*?build(\([[:word:]]+\))??!?:.+$
+      order: 400
+    - title: Other work
+      order: 9999
+
+archives:
+  - name_template: '{{ .ProjectName }}-{{ .Version }}-{{ .Os }}-{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}'
+    format_overrides:
+      - goos: windows
+        format: zip
+    builds_info:
+      group: root
+      owner: root
+    rlcp: true
+    files:
+      - README.md
+
+nfpms:
+  # note that this is an array of nfpm configs
+  - #
+    # ID of the nfpm config, must be unique.
+    #
+    # Default: 'default'
+    id: webitel-chat-redirect
+
+    # Name of the package.
+    # Default: ProjectName
+    # Templates: allowed. (since v1.18)
+    package_name: webitel-chat-redirect
+
+    # Your app's vendor.
+    vendor: Webitel Ltd.
+
+    # Your app's homepage.
+    homepage: https://webitel.com/
+
+    # Your app's maintainer (probably you).
+    maintainer: Webitel <cloud@webitel.com>
+
+    # Your app's description.
+    description: |-
+      Webitel chat_redirect package.
+
+    # Your app's license.
+    license: Apache 2.0
+
+    formats:
+      - deb
+
+    umask: 0o002
+    bindir: /usr/local/bin
+
+    # Version Release.
+    release: 23.12
+
+    # Section.
+    section: default
+
+    # Priority.
+    priority: extra
+
+    # Makes a meta package - an empty package that contains only supporting
+    # files and dependencies.
+    # When set to `true`, the `builds` option is ignored.
+    meta: false
+
+    # Custom configuration applied only to the Deb packager.
+    deb:
+      # Lintian overrides
+      lintian_overrides:
+        - statically-linked-binary
+        - changelog-file-missing-in-native-package
+
+milestones:
+  - close: true
+
+release:
+  footer: |
+    **Full Changelog**: https://github.com/webitel/chat_redirect/compare/{{ .PreviousTag }}...{{ .Tag }}
+
+    * * *
+
