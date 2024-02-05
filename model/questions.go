@@ -11,7 +11,7 @@ type GeneralQuestions struct {
 }
 
 type GeneralBody struct {
-	Type    string `json:"type"`
+	//Type    string `json:"type"`
 	Gateway string `json:"gateway"`
 	Payload any    `json:"payload"`
 }

@@ -22,7 +22,7 @@ type RedisSettings struct {
 }
 
 type BotsSettings struct {
-	Links       string `flag:"allow_link||Viber bot deeplink to identify the right links for redirection"`
+	Links       string `flag:"allow_link||Array of links to accept only allowed links for redirection. Split by comma"`
 	ParsedLinks []string
 }
 
